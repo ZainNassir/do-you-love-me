@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do you love me?</title>
+<style>
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #ffe4e1;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+h1 {
+    margin-bottom: 40px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+#yes-btn {
+    background-color: #ff69b4;
+    color: white;
+}
+
+#no-btn {
+    background-color: #1e90ff;
+    color: white;
+    position: absolute; /* absolute for roaming */
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: 2px solid #ff69b4;
+    margin-top: 20px;
+}
+
+canvas {
+    position: fixed;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+</style>
+</head>
+<body>
+
+<h1 id="main-heading">Do you love me?</h1>
+<div id="button-container" class="button-group">
+    <button id="yes-btn">Yes</button>
+    <button id="no-btn">No</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const heading = document.getElementById("main-heading");
+const yesBtn = document.getElementById("yes-btn");
+const noBtn = document.getElementById("no-btn");
+const bodyEl = document.body;
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// --- Angry No Button Mechanics ---
+let noMoves = 0;
+const maxMoves = 10;
+
+// General function to make any button angry
+function makeButtonAngry(button) {
+    let size = 100;
+    let hue = 220;
+
+    button.style.position = "absolute";
+    button.addEventListener("mouseover", () => {
+        if(noMoves >= maxMoves) return;
+
+        // Move button anywhere in viewport
+        const x = Math.random() * (window.innerWidth - button.offsetWidth);
+        const y = Math.random() * (window.innerHeight - button.offsetHeight);
+
+        button.style.left = x + "px";
+        button.style.top = y + "px";
+        button.style.transform = `scale(${size/100})`;
+        button.style.backgroundColor = `hsl(${hue}, 80%, 50%)`;
+
+        // Shrink and redden
+        size *= 0.9;
+        hue += 15;
+        noMoves++;
+
+        if(noMoves >= maxMoves) triggerExplosion();
+    });
+}
+
+// Apply to main No button
+makeButtonAngry(noBtn);
+
+// --- Step 1: Yes Button ---
+yesBtn.addEventListener("click", () => {
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+
+    heading.textContent = "Are you sure?";
+    showAreYouSure();
+});
+
+// --- Are You Sure Buttons ---
+function showAreYouSure() {
+    const yesConfirm = document.createElement("button");
+    yesConfirm.textContent = "Yes";
+    yesConfirm.style.backgroundColor = "#ff69b4";
+    yesConfirm.style.color = "white";
+
+    const noConfirm = document.createElement("button");
+    noConfirm.textContent = "No";
+    noConfirm.style.backgroundColor = "#1e90ff";
+    noConfirm.style.color = "white";
+
+    const group = document.createElement("div");
+    group.classList.add("button-group");
+    group.appendChild(yesConfirm);
+    group.appendChild(noConfirm);
+    bodyEl.appendChild(group);
+
+    // Make Are You Sure No button angry too
+    makeButtonAngry(noConfirm);
+
+    yesConfirm.addEventListener("click", () => {
+        group.remove();
+        heading.textContent = "How much?";
+        showInput();
+    });
+
+    noConfirm.addEventListener("click", () => {
+        group.remove();
+        heading.textContent = "Do you love me?";
+        yesBtn.style.display = "inline-block";
+        noBtn.style.display = "inline-block";
+    });
+}
+
+// --- Input Field ---
+function showInput() {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Type your answer...";
+    bodyEl.appendChild(input);
+
+    input.addEventListener("keypress", (e) => {
+        if(e.key === "Enter" && input.value.trim() !== ""){
+            heading.textContent = `You love me ${input.value} ❤️`;
+            input.remove();
+            showConfetti();
+        }
+    });
+}
+
+// --- Confetti ---
+function showConfetti() {
+    const confettiCount = 150;
+    const confetti = [];
+    for(let i=0;i<confettiCount;i++){
+        confetti.push({
+            x: Math.random()*canvas.width,
+            y: Math.random()*canvas.height - canvas.height,
+            r: Math.random()*6+4,
+            d: Math.random()*confettiCount,
+            color: `hsl(${Math.random()*360},80%,60%)`,
+            tilt: Math.random()*10-10,
+            tiltAngleIncremental: Math.random()*0.07+0.05,
+            tiltAngle: 0
+        });
+    }
+    function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        confetti.forEach(c=>{
+            ctx.beginPath();
+            ctx.lineWidth = c.r/2;
+            ctx.strokeStyle = c.color;
+            ctx.moveTo(c.x + c.tilt + c.r/4, c.y);
+            ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r/4);
+            ctx.stroke();
+
+            c.tiltAngle += c.tiltAngleIncremental;
+            c.y += (Math.cos(c.d)+3+c.r/2)/2;
+            c.tilt = Math.sin(c.tiltAngle)*15;
+
+            if(c.y>canvas.height){
+                c.x = Math.random()*canvas.width;
+                c.y = -10;
+                c.tilt = Math.random()*10-10;
+            }
+        });
+        requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+// --- Angry Button Explosion ---
+function triggerExplosion() {
+    bodyEl.innerHTML = "";
+    bodyEl.style.background = "black";
+
+    const msg = document.createElement("h1");
+    msg.textContent = "💥 You now owe me a massage for breaking my heart! 💥";
+    msg.style.color = "white";
+    msg.style.fontSize = "2em";
+    msg.style.textAlign = "center";
+    bodyEl.appendChild(msg);
+
+    const particles = [];
+    const particleCount = 50;
+    for(let i=0;i<particleCount;i++){
+        particles.push({
+            x: window.innerWidth/2,
+            y: window.innerHeight/2,
+            r: Math.random()*8+4,
+            dx: (Math.random()-0.5)*10,
+            dy: (Math.random()-0.5)*10,
+            color: `hsl(${Math.random()*360},100%,50%)`
+        });
+    }
+
+    function explode(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        particles.forEach(p=>{
+            p.x += p.dx;
+            p.y += p.dy;
+            p.dy += 0.3;
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+        });
+        requestAnimationFrame(explode);
+    }
+    explode();
+}
+</script>
+</body>
+</html>
