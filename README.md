@@ -31,3 +31,41 @@ It features:
 - Clean, responsive layout
 
 ---
+
+---
+
+## Tech Stack
+
+- **HTML5** – Semantic structure and layout  
+- **CSS3** – Styling, layout, and transitions  
+- **JavaScript (Vanilla)** – Core application logic  
+- **Canvas API** – Custom confetti and explosion animations  
+- **DOM Manipulation** – Dynamic UI updates and interaction handling  
+
+---
+
+## Key Skills Demonstrated
+
+- Dynamic DOM manipulation (creating, updating, and removing elements)  
+- Event-driven programming (click and hover interactions)  
+- State management across multiple UI steps  
+- Animation handling using both CSS and JavaScript  
+- Responsive layout and centered UI design  
+- Creative problem-solving and interactive UX design  
+
+---
+
+## Development Tools
+
+- Git & GitHub – Version control and code hosting  
+- VS Code – Development environment  
+- GitHub Pages – Deployment (optional)  
+
+---
+
+## What I Learned
+
+- How to manage UI state across multiple steps in a single-page experience  
+- Structuring JavaScript for reusable and maintainable logic  
+- Handling dynamic elements and ensuring consistent behavior  
+- Enhancing user experience with animations and feedback  
